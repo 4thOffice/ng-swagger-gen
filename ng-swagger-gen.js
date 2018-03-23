@@ -631,6 +631,8 @@ function propertyType(property) {
       return "number";
     case "boolean":
       return "boolean";
+    case "file":
+      return "file";
     case "object":
       var def = "{";
       var first = true;
@@ -781,6 +783,9 @@ function toIdentifier(string) {
 function tagName(tag, options) {
   if (tag == null || tag === '') {
     tag = options.defaultTag || "Api";
+  }
+  if (options.defaultTag && !tag.endsWith(options.defaultTag)) {
+    tag = tag + options.defaultTag;
   }
   tag = toIdentifier(tag);
   return tag.charAt(0).toUpperCase() + (tag.length == 1 ? "" : tag.substr(1));
@@ -951,6 +956,7 @@ function processServices(swagger, models, options) {
       operation.operationIsString = actualType === 'string';
       operation.operationIsNumber = actualType === 'number';
       operation.operationIsBoolean = actualType === 'boolean';
+      operation.operationIsFile = actualType === 'file';
       operation.operationIsEnum = modelResult && modelResult.modelIsEnum;
       operation.operationIsObject = modelResult && modelResult.modelIsObject;
       operation.operationIsPrimitiveArray = !modelResult &&
@@ -959,6 +965,9 @@ function processServices(swagger, models, options) {
         operation.operationIsString || operation.operationIsNumber ||
         operation.operationIsBoolean || operation.operationIsEnum ?
         'text' : 'json';
+      if (operation.operationIsFile) {
+        operation.operationResponseType = 'arraybuffer';
+      }
       operation.operationIsUnknown = !(operation.operationIsVoid ||
         operation.operationIsString || operation.operationIsNumber ||
         operation.operationIsBoolean || operation.operationIsEnum ||
