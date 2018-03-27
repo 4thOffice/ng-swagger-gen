@@ -967,6 +967,7 @@ function processServices(swagger, models, options) {
         'text' : 'json';
       if (operation.operationIsFile) {
         operation.operationResponseType = 'arraybuffer';
+        operation.operationResultType = 'ArrayBuffer';
       }
       operation.operationIsUnknown = !(operation.operationIsVoid ||
         operation.operationIsString || operation.operationIsNumber ||
