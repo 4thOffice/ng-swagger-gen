@@ -398,7 +398,7 @@ function toComments(text, level) {
   var indent = "";
   var i;
   for (i = 0; i < level; i++) {
-    indent += "  ";
+    indent += "    ";
   }
   if (text == null || text.length === 0) {
     return indent;
@@ -408,7 +408,7 @@ function toComments(text, level) {
   lines.forEach(line => {
     result += indent + " *" + (line === '' ? '' : ' ' + line) + "\n";
   });
-  result += indent + " */\n " + indent;
+  result += indent + " */\n" + indent;
   return result;
 }
 
@@ -484,10 +484,11 @@ function processModels(swagger, options) {
     } else {
       simpleType = propertyType(model);
     }
+    var modelName = name === 'File' ? 'IFile' : name;
     var descriptor = {
-      modelName: name,
-      modelClass: name,
-      modelFile: toFileName(name),
+      modelName: modelName,
+      modelClass: modelName,
+      modelFile: toFileName(modelName),
       modelComments: toComments(model.description),
       modelParent: parent,
       modelIsObject: properties != null,
@@ -888,10 +889,11 @@ function processServices(swagger, models, options) {
           paramIsPath: param.in === 'path',
           paramIsHeader: param.in === 'header',
           paramIsBody: param.in === 'body',
+          paramIsFormData: param.in === 'formData',
           paramIsArray: param.type === 'array',
           paramDescription: param.description,
           paramComments: toComments(param.description, 2),
-          paramType: paramType,
+          paramType: param.in === 'formData' ? 'File' : paramType,
           paramCollectionFormat: param.collectionFormat
         };
         operationParameters.push(paramDescriptor);
@@ -926,7 +928,7 @@ function processServices(swagger, models, options) {
             if (line === "") {
               docString += "\n";
             } else {
-              docString += (l == 0 ? "" : "  ") + line + "\n";
+              docString += (l == 0 ? "" : "    ") + line + "\n";
             }
           }
         }
@@ -965,7 +967,7 @@ function processServices(swagger, models, options) {
         operation.operationIsString || operation.operationIsNumber ||
         operation.operationIsBoolean || operation.operationIsEnum ?
         'text' : 'json';
-      if (operation.operationIsFile) {
+      if (operation && operation.operationIsFile) {
         operation.operationResponseType = 'arraybuffer';
         operation.operationResultType = 'ArrayBuffer';
       }
