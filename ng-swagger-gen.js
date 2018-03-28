@@ -484,11 +484,10 @@ function processModels(swagger, options) {
     } else {
       simpleType = propertyType(model);
     }
-    var modelName = name === 'File' ? 'IFile' : name;
     var descriptor = {
-      modelName: modelName,
-      modelClass: modelName,
-      modelFile: toFileName(modelName),
+      modelName: name,
+      modelClass: name,
+      modelFile: toFileName(name),
       modelComments: toComments(model.description),
       modelParent: parent,
       modelIsObject: properties != null,
@@ -633,7 +632,7 @@ function propertyType(property) {
     case "boolean":
       return "boolean";
     case "file":
-      return "file";
+      return 'Blob';
     case "object":
       var def = "{";
       var first = true;
@@ -890,10 +889,11 @@ function processServices(swagger, models, options) {
           paramIsHeader: param.in === 'header',
           paramIsBody: param.in === 'body',
           paramIsFormData: param.in === 'formData',
+          paramIsBlob: paramType === 'Blob',
           paramIsArray: param.type === 'array',
           paramDescription: param.description,
           paramComments: toComments(param.description, 2),
-          paramType: param.in === 'formData' ? 'File' : paramType,
+          paramType: paramType,
           paramCollectionFormat: param.collectionFormat
         };
         operationParameters.push(paramDescriptor);
@@ -958,7 +958,7 @@ function processServices(swagger, models, options) {
       operation.operationIsString = actualType === 'string';
       operation.operationIsNumber = actualType === 'number';
       operation.operationIsBoolean = actualType === 'boolean';
-      operation.operationIsFile = actualType === 'file';
+      operation.operationIsBlob = actualType === 'Blob';
       operation.operationIsEnum = modelResult && modelResult.modelIsEnum;
       operation.operationIsObject = modelResult && modelResult.modelIsObject;
       operation.operationIsPrimitiveArray = !modelResult &&
@@ -967,7 +967,7 @@ function processServices(swagger, models, options) {
         operation.operationIsString || operation.operationIsNumber ||
         operation.operationIsBoolean || operation.operationIsEnum ?
         'text' : 'json';
-      if (operation && operation.operationIsFile) {
+      if (operation && operation.operationIsBlob) {
         operation.operationResponseType = 'arraybuffer';
         operation.operationResultType = 'ArrayBuffer';
       }
